@@ -26,14 +26,16 @@ try{
  await rejects(()=>ask('add-task',prop,'--title=x','--owner=x','--due-on=2026-02-30',by),/Invalid/);
  await rejects(()=>ask('add-task',prop,'--title=x','--owner=x',`--due-on=${today}`),/--by/);
  eq((await ask('tasks',prop)).length,2);
- await rejects(()=>ask('set-rate-rule','Harbour',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3',by),/Ambiguous[\s\S]*HH-KING[\s\S]*HH-TWIN/);
- await rejects(()=>ask('set-rate-rule','EI-KING',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3',by),/Not found/);
+ await rejects(()=>ask('set-rate-rule','Harbour',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3','--fee-cents=0',by),/Ambiguous[\s\S]*HH-KING[\s\S]*HH-TWIN/);
+ await rejects(()=>ask('set-rate-rule','EI-KING',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3','--fee-cents=0',by),/Not found/);
  await rejects(()=>ask('approve','HH-TWIN',prop,`--date=${day(1)}`,'--fingerprint=x','--reason=Test',by),/stale occupancy/);
  await rejects(()=>ask('approve','HH-KING',prop,`--date=${day(1)}`,'--fingerprint=x','--reason=Test',by),/Proposal changed/);
  await ask('approve','hh-king',prop,`--date=${day(1)}`,`--fingerprint=${first.fingerprint}`,'--reason=Reviewed rules and fees',by);
  eq((await ask('approved-plan',prop))[0].state,'current approval');
  await ask('log-occupancy','HH-KING',prop,`--date=${day(1)}`,`--observed-on=${today}`,'--sold=18','--blocked=0','--revenue-cents=396000',by);
  eq((await ask('approved-plan',prop))[0].state,'stale approval');eq((await ask('propose',prop)).find(r=>r.listing==='HH-KING'&&r.date===day(1)).proposed_cents,26400);
+ await rejects(()=>ask('set-rate-rule','hh-king',prop,'--floor-cents=20000','--base-cents=22000','--ceiling-cents=25000',by),/fee-cents/);
+ await rejects(()=>ask('log-occupancy','HH-KING',prop,`--date=${day(1)}`,`--observed-on=${today}`,'--sold=0','--blocked=0','--revenue-cents=10',by),/revenue must be zero/);
  await ask('set-rate-rule','hh-king',prop,'--floor-cents=20000','--base-cents=22000','--ceiling-cents=25000','--fee-cents=1000',by);
  eq((await ask('propose',prop)).find(r=>r.listing==='HH-KING'&&r.date===day(5)).proposed_cents,25000);
  ok((await ask('insights','ceiling-nights',prop)).length>0);ok((await ask('insights','floor-nights',prop)).length>0);
@@ -78,7 +80,7 @@ try{
  const html=fs.readFileSync(path.join(process.env.OUTPUT_DIR,'views','week.html'),'utf8');ok(html.includes('Harbour King'));
  const docs=fs.readdirSync(path.join(process.env.OUTPUT_DIR,'docs-out','revenue-meeting')).map(f=>fs.readFileSync(path.join(process.env.OUTPUT_DIR,'docs-out','revenue-meeting',f),'utf8')).join('\n');ok(docs.includes('&lt;script&gt;'));ok(!docs.includes('<script>alert'));
  const cli=spawn('rates','properties','--json');eq(cli.status,0);eq(JSON.parse(cli.stdout).length,3);
- const bad=spawn('rates','set-rate-rule','Harbour',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3',by);eq(bad.status,1);ok(bad.stderr.includes('HH-TWIN'));
+ const bad=spawn('rates','set-rate-rule','Harbour',prop,'--floor-cents=1','--base-cents=2','--ceiling-cents=3','--fee-cents=0',by);eq(bad.status,1);ok(bad.stderr.includes('HH-TWIN'));
  const unknown=spawn('rates','unknown');eq(unknown.status,1);
  console.log(`PASS: ${count} checks; pricing, capacity, stale approvals, property isolation, import rollback, roundtrip, documents and CLI exits`);
 }finally{if(db)await db.close();fs.rmSync(temp,{recursive:true,force:true});}
