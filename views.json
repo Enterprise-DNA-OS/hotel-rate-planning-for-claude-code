@@ -1,13 +1,37 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Hotel Rate Planning for Claude Code: what needs attention, rendered by npm run view",
+    "title": "Rate planning week",
+    "subtitle": "Internal proposal review; no prices sent",
     "sections": [
       {
-        "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
+        "title": "Proposed nightly totals and blockers",
+        "sql": "select code || ' / ' || name as room_type,stay_date,occupancy_pct,proposed_cents,total_cents,currency,readiness from rate_plan where stay_date between current_date and current_date+14 order by code,stay_date,name"
+      },
+      {
+        "title": "Source comparison",
+        "sql": "select code || ' / ' || name as room_type,stay_date,vendor_cents,current_cents,proposed_cents,currency,min_stay from rate_plan where stay_date between current_date and current_date+14 order by code,stay_date,name"
+      }
+    ]
+  },
+  {
+    "name": "attention",
+    "title": "Rates that need attention",
+    "sections": [
+      {
+        "title": "Review blockers and overdue work",
+        "sql": "select code,name,due_on,issue from attention order by due_on,code,name"
+      }
+    ]
+  },
+  {
+    "name": "pickup",
+    "title": "Booking pickup",
+    "sections": [
+      {
+        "title": "Latest snapshot against previous observation",
+        "sql": "select code,name,stay_date,observed_on,sold,pickup_rooms,adr_cents,revpar_cents,currency from pickup order by code,stay_date,name",
+        "note": "Net change between the two latest snapshots, not gross new bookings. ADR and RevPAR use recorded room revenue on the same basis as your occupancy source."
       }
     ]
   }

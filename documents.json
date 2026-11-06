@@ -1,11 +1,44 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
-    "file": "name",
+    "name": "rate-approval",
+    "title": "Rate approval working paper",
+    "for_each": "select id,code from properties order by code",
+    "file": "code",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      {
+        "title": "Property and pricing basis",
+        "sql": "select name,owner,currency,jurisdiction,tax_inclusive,fee_reviewed_on from properties where id=$1",
+        "layout": "record"
+      },
+      {
+        "title": "Proposed nightly totals",
+        "sql": "select name,stay_date,min_stay,proposed_cents,nightly_fee_cents,total_cents,currency,readiness from rate_plan where property_id=$1 and stay_date>=current_date order by stay_date,name"
+      },
+      {
+        "title": "Recorded decisions",
+        "sql": "select l.name,d.stay_date,a.rate_cents,a.total_cents,a.min_stay,a.actor,a.reason,a.created_at from decisions a join rate_days d on d.id=a.rate_day_id join listings l on l.id=d.listing_id where l.property_id=$1 order by a.created_at desc",
+        "note": "Historical decisions. Use the approved-plan command to check that a decision still matches current evidence before copying prices elsewhere."
+      }
+    ]
+  },
+  {
+    "name": "revenue-meeting",
+    "title": "Weekly revenue meeting pack",
+    "for_each": "select id,code from properties order by code",
+    "file": "code",
+    "sections": [
+      {
+        "title": "Booking movement",
+        "sql": "select name,stay_date,observed_on,sold,pickup_rooms,adr_cents,revpar_cents,currency from pickup where property_id=$1 order by stay_date,name"
+      },
+      {
+        "title": "Events",
+        "sql": "select name,starts_on,ends_on,uplift_bps,evidence from events where property_id=$1 order by starts_on"
+      },
+      {
+        "title": "Actions",
+        "sql": "select title,owner,due_on,status,resolution from tasks where property_id=$1 order by due_on"
+      }
     ]
   }
 ]

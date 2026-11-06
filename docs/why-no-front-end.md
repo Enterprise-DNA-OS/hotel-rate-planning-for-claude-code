@@ -1,24 +1,9 @@
-# Why there is no front end
+# Views without a front end
 
-PriceLabs is a database with a subscription. The tables underneath it are ordinary: a few entities, a few relationships, a handful of workflows you repeat every week. What you pay for is the layer on top that lets people who do not write SQL get at those tables. Screens, filters, dashboards, forms.
+The operator asks for occupancy, rate proposals and approval history. The CLI reads the database and writes printable reports using brand.json. One field or rule change can be made and tested in the same place as the records.
 
-That layer used to be the whole product, because talking to a database was hard. It is not hard any more. Open this folder in Claude Code, describe what you want, and it writes the query, runs it, and explains the answer. Ask a question the dashboard never had a chart for and you still get an answer.
+A conventional screen gives a visual rate calendar, drag-and-drop changes, mobile access and instant channel updates. This base supplies none of those. It does not serve a public booking page, collect payments, scrape competitors, supply market data or synchronise a channel. Its useful job is the internal rate review and its evidence.
 
-## What you gain
+A booking system connection, richer fee calculations or an operator screen is a scoped implementation job. Keep current booking distribution running until that work is built and checked. The local HTML reports are read-only files, not an access-controlled website. Keep them private.
 
-- **Better answers.** A dashboard shows what the vendor decided to chart. Here you ask your own question, in your own words, and get it answered against your own data.
-- **No seats.** Everyone who needs to look can look. The bill does not grow with headcount.
-- **Your data in your Postgres.** Plain tables. Back them up, query them from anything, leave any time. There is no export step because there is nothing to leave.
-- **A process that matches you.** When your way of working changes, you add a command. You do not wait for a feature request to clear.
-
-## What you give up
-
-- **A visual board.** Stages are a table you ask about, not cards you drag.
-- **A phone app.** It runs where Claude Code runs.
-- **A vendor help desk.** This is open source. Enterprise DNA supports the installed version for businesses that want someone to call.
-
-## Who this fits
-
-Small teams who already use Claude Code, or who would rather learn to ask than learn another interface. If your team needs a screen to look at all day, keep PriceLabs. If you need the answers more than the screens, this is cheaper, faster and yours.
-
-Installed and run for you: https://enterprisedna.co/omni/instead-of/pricelabs
+Omni by Enterprise DNA builds and operates the version that fits the hotel, with one setup fee then a retainer.
