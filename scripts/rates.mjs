@@ -104,7 +104,8 @@ export async function run(db,argv){
   };
   if(key==='owner-backlog')return db.query("select owner,count(*)::int as overdue from tasks where property_id=$1 and status='open' and due_on<current_date group by owner order by overdue desc,owner",[p.id]);
   if(key==='negative-pickup')return db.query('select name,stay_date,pickup_rooms from pickup where property_id=$1 and pickup_rooms<0 order by stay_date,name',[p.id]);
-  return db.query(`select source_id,name,stay_date,occupancy_pct,observed_on,current_cents,proposed_cents,total_cents,min_stay,currency from rate_plan where property_id=$1 and stay_date>=current_date and ${where[key]} order by ${key==='rate-gap'?'abs(proposed_cents-current_cents) desc,':''}stay_date,source_id`,[p.id]);
+  const columns=key==='event-pressure'?'name,stay_date,occupancy_pct,event_bps,proposed_cents,total_cents,currency':key==='stale-room-types'?'name,stay_date,observed_on':key==='minimum-stay'?'name,stay_date,occupancy_pct,min_stay':key==='fee-review'?'name,stay_date,nightly_fee_cents,total_cents,currency':key==='rate-gap'?'name,stay_date,current_cents,proposed_cents,currency':'name,stay_date,occupancy_pct,proposed_cents,total_cents,currency';
+  return db.query(`select ${columns} from rate_plan where property_id=$1 and stay_date>=current_date and ${where[key]} order by ${key==='rate-gap'?'abs(proposed_cents-current_cents) desc,':''}stay_date,source_id`,[p.id]);
  }
  if(['weekly-review','draft-rate-note'].includes(cmd)){
   const sections=[];for(const name of ['pickup','propose','attention']){const rows=await run(db,[name,`--property=${p.code}`]);sections.push(`## ${name}\n\n${JSON.stringify(rows.map(({fingerprint,...r})=>r),null,2)}`);}
@@ -164,4 +165,4 @@ export async function run(db,argv){
  }
  throw Error(`Not implemented: ${cmd}`);
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){let db;try{db=await getDb();const rows=await run(db,process.argv.slice(2));if(process.argv.includes('--json'))console.log(JSON.stringify(rows,null,2));else if(rows[0]?.help)console.log(rows[0].help);else console.log(table(rows,Object.keys(rows[0]||{}).map(key=>({key,label:key}))));}catch(e){console.error(e.message);process.exitCode=1;}finally{if(db)await db.close();}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){let db;try{db=await getDb();const rows=await run(db,process.argv.slice(2));if(process.argv.includes('--json'))console.log(JSON.stringify(rows,null,2));else if(rows[0]?.help)console.log(rows[0].help);else console.log(table(rows,Object.keys(rows[0]||{}).map(key=>({key,label:key.replace(/_cents$/, '').replace(/_bps$/, ' percent').replaceAll('_',' '),format:(v,row)=>v==null?'':key.endsWith('_cents')?`${row.currency||''} ${(Number(v)/100).toFixed(2)}`.trim():key.endsWith('_bps')?(Number(v)/100).toFixed(2):typeof v==='object'?JSON.stringify(v):String(v)}))));}catch(e){console.error(e.message);process.exitCode=1;}finally{if(db)await db.close();}}
