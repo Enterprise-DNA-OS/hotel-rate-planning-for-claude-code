@@ -27,7 +27,7 @@ npm test
 
 Harbour House and Estuary Inn are fictional. The demo has two currencies, king and twin room types, a food weekend, stale occupancy and overdue work. Seed is repeatable and does not overwrite changed records. Never seed an operational database.
 
-[PriceLabs hotel pricing](https://hotels.pricelabs.co/plans/), checked 6 November 2026, displays US$14.49 per room/month in its US calculator. At that displayed rate, 100 rooms imply US$17,388 a year before tax or discounts. This is an illustrative calculation, not a verified customer invoice or a quote for an NZ/AU hotel. The same page gives different unit pricing in its FAQ and says location and volume affect the bill. Get the actual invoice before making a replacement decision.
+[PriceLabs hotel pricing](https://hotels.pricelabs.co/plans/), checked 6 November 2026 in the live calculator with New Zealand, Single Room Type and 150 rooms selected, shows US$1,048.50 per month, or US$12,582 a year before taxes. This includes the calculator's volume discount. It is a pricing scenario, not a verified customer invoice. Your room-type setup and plan change the bill. Get the actual invoice before making a replacement decision. The [captured calculator](docs/evidence/pricelabs-nz150.png) records the selection checked this run.
 
 ## What it does
 
